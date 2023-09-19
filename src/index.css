@@ -223,7 +223,8 @@ img {
 .gallery-grid .image-item{
   padding: 0.7rem;
   border: 1px solid white;
-  position: relative;
+  top: auto !important;
+  left: auto !important;
 }
 
 .gallery-img {
