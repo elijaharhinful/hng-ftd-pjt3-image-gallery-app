@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 import deer from '../components/assets/deer.jpg';
 import fish from '../components/assets/fish.jpg';
 import duck from '../components/assets/duck.jpg';
@@ -17,7 +19,7 @@ function GalleryPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const galleryData = [
+  const [galleryData, setGalleryData] = useState([
     { "id": 1, "imageSrc": deer, "tag": "mammal" },
     { "id": 2, "imageSrc": fish, "tag": "fish" },
     { "id": 3, "imageSrc": duck, "tag": "bird" },
@@ -30,7 +32,7 @@ function GalleryPage() {
     { "id": 10, "imageSrc": parrot, "tag": "bird" },
     { "id": 11, "imageSrc": sheep, "tag": "mammal" },
     { "id": 12, "imageSrc": whale, "tag": "mammal" }
-  ];
+  ]);
 
   useEffect(() => {
     if (searchQuery === '') {
@@ -62,6 +64,16 @@ function GalleryPage() {
     }, 1000); // Simulate a delay (remove this in production)
   };
 
+  const handleOnDragEnd = (result) => {
+    if (!result.destination) return;
+    const items = Array.from(galleryData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setGalleryData(items);
+  };
+
+
   return (
     <div className='gallery-container'>
       <div className='search-bar'>
@@ -71,34 +83,29 @@ function GalleryPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button  className="button" onClick={handleSearch}>Search</button>
+        <button className="button" onClick={handleSearch}>Search</button>
       </div>
 
-      <div className='gallery-grid'>
-        {loading ? (
-          // Display loading message while fetching results
-          <div className="loading-spinner"></div>
-        ) : searchQuery === '' ? (
-          // Display all images when searchQuery is empty
-          galleryData.map((item) => (
-            <div key={item.id} className='image-item'>
-              <img src={item.imageSrc} alt={`Image ${item.id}`} />
-              <span>{item.tag}</span>
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Droppable droppableId="images">
+          {(provided) => (
+            <div className='gallery-grid' {...provided.droppableProps} ref={provided.innerRef}>
+              {galleryData.map((item, index) => (
+                <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                {(provided, snapshot) => (
+                  <div className={`image-item ${snapshot.isDragging ? "dragging" : ""}`} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                    <img src={item.imageSrc} alt={`Image ${item.id}`} />
+                    
+                  </div>
+                )}
+              </Draggable>              
+              ))}
+              {provided.placeholder}
             </div>
-          ))
-        ) : searchResults.length > 0 ? (
-          // Render search results
-          searchResults.map((item) => (
-            <div key={item.id} className='image-item'>
-              <img src={item.imageSrc} alt={`Image ${item.id}`} />
-              <span>{item.tag}</span>
-            </div>
-          ))
-        ) : (
-          // Show a message for no search results
-          <div>No results found for "{searchQuery}"</div>
-        )}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+
     </div>
   );
 }
