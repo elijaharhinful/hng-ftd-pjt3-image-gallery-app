@@ -16,6 +16,22 @@ This web application allows users login, drag and drop images to rearrange them,
 
 You can access the live demo of the DND Galleria App [here](https://dnd-galleria.netlify.app/).
 
+# Login
+This app is setup to use a single defined user authentication details.
+Clicking on the link above should send you to the login page.
+Login using these details:
+```
+username = user@example.com
+password = 1Password
+```
+
+# Image Rearrangment
+The app has a drag and drop feature that rearranges the images as you drag them from one position to the other.
+
+# Search
+You can search for images by their defined tags.
+
+
 
 ## Installation
 
@@ -84,3 +100,4 @@ Contributions to this project are welcome. If you'd like to contribute, please f
 4. Push to the branch: `git push origin feature/your-feature-name`.
 5. Create a pull request detailing your changes.
 
+/
