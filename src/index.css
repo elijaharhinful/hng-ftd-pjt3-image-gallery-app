@@ -34,22 +34,6 @@
   /*========== Font weight ==========*/
   --font-medium: 500;
   --font-semi-bold: 600;
-
-  /*========== Margin Bottom ==========*/
-  /* .25rem = 4px, .5rem = 8px, .75rem = 12px ... */
-  --mb-0-25: 0.25rem;
-  --mb-0-5: 0.5rem;
-  --mb-0-75: 0.75rem;
-  --mb-1: 1rem;
-  --mb-1-5: 1.5rem;
-  --mb-2: 2rem;
-  --mb-2-5: 2.5rem;
-  --mb-3: 3rem;
-
-  /*========== z index ==========*/
-  --z-tooltip: 10;
-  --z-fixed: 100;
-  --z-modal: 1000;
 }
 
 /*==================== BASE ====================*/
@@ -95,7 +79,8 @@ img {
 /* hompage */
 
 .container {
-  padding: 0 20rem;
+  padding-left: clamp(5rem,15%,20rem);
+  padding-right: clamp(5rem,15%,20rem);
 }
 
 
@@ -164,7 +149,7 @@ img {
 
 .navbar .logo {
   display: flex;
-  width: 15rem;
+  max-width: 20rem;
 }
 .navbar .logo img {
   width: 100%;
@@ -176,7 +161,7 @@ img {
   align-items: center;
   justify-content: flex-end;
   justify-items: flex-end;
-  width: 10rem;
+  max-width: 20rem;
 }
 
 .navbar .user .userText{
@@ -198,7 +183,7 @@ img {
 
 .gallery-container .search-bar input{
   border: 2px solid #66fcf1;
-  width: 23rem;
+  width: 40%;
   padding: 0.53rem 0 0.3rem 0.5rem;
 }
 
@@ -262,6 +247,165 @@ img {
 
 .error-message{
   color: red;
+}
+
+
+/* For mobbile phones */
+@media screen and (max-width: 768px) {
+  /* hompage */
+
+.container {
+  padding: 0 2rem;
+}
+
+
+/* login form */
+
+.login-form {
+  max-width: 80%;
+  padding: 2rem;
+  font-size: 16px;
+}
+
+.login-wrapper h1 {
+  font-size: var(--h1-font-size);
+  margin-bottom: 1rem;
+  color: var(--first-color);
+}
+
+.login-form input {
+  border: 2px solid var(--first-color);
+  padding: 1rem 0 0.5rem 0.5rem;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.login-form input::placeholder {
+  font-size: var(--h3-font-size);
+  color: var(--body-color-alt);
+}
+
+.login-form .errormsg {
+  color: red;
+}
+
+/*==================== BUTTONS ====================*/
+.button {
+  display: inline-block;
+  background-color: var(--first-color);
+  color: var(--body-color);
+  padding: 0.7rem;
+  font-size: var(--h3-font-size);
+  border: 0;
+  margin-top: 1.3rem;
+}
+
+.button:hover {
+  background-color: var(--first-color-alt);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 0;
+  font-size: var(--h3-font-size);
+}
+
+.navbar .logo {
+  display: flex;
+  max-width: 10rem;
+}
+.navbar .logo img {
+  width: 100%;
+}
+
+.navbar .user {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  justify-items: flex-end;
+  max-width: 7rem;
+}
+
+.navbar .user .userText{
+  margin-right: 0.5rem;
+}
+.navbar .user img {
+  display: flex;
+  width: 100%;
+}
+
+/* Gallery */
+.gallery-container .search-bar{
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-container .search-bar input{
+  border: 2px solid #66fcf1;
+  max-width: 12rem;
+  padding: 0.53rem 0 0.3rem 0.5rem;
+}
+
+.gallery-container .search-bar input::placeholder{
+  color: var(--body-color-alt);
+  font-size: 16px;
+}
+
+.gallery-container .search-bar .button{
+  padding: 0.3rem;
+  margin-top: 0;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 0;
+  cursor:grab;
+}
+
+.gallery-grid .image-item{
+  border: 1px solid ;
+  padding: .5rem;
+}
+
+.gallery-gird img {
+  width: "100%";
+  text-align: "center";
+  touch-action: none;
+} 
+
+/* footer */
+.footer{
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0 1rem;
+  padding: 2rem 0 1rem 0;
+  border-top: 0.5px solid #66fcf1;
+  width: 100%;
+}
+
+.footer .text{
+  margin: 0 0 0 1rem;
+}
+
+/* LoadingSpinner */
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid #66fcf1;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
 }
 
 
