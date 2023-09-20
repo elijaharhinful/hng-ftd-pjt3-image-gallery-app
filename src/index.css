@@ -211,7 +211,6 @@ img {
   padding: 0.3rem;
   margin-top: 0;
 }
-
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -221,15 +220,15 @@ img {
 }
 
 .gallery-grid .image-item{
-  padding: 0.7rem;
-  border: 1px solid white;
-  position: relative;
+  border: 1px solid ;
+  padding: 1rem;
 }
 
-.gallery-img {
+.gallery-gird img {
   width: "100%";
   text-align: "center";
-}
+  touch-action: none;
+} 
 
 /* footer */
 .footer{
@@ -260,3 +259,9 @@ img {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.error-message{
+  color: red;
+}
+
+

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSwappingStrategy, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableImage } from './SortableImage';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from "react-router-dom";
 
 import deer from '../components/assets/deer.jpg';
 import fish from '../components/assets/fish.jpg';
@@ -18,20 +23,42 @@ function GalleryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingAll, setLoadingAll] = useState(false);
+  const navigate = useNavigate();
+  const [authUser, setAuthUser] = useState(null);
+  const [loadingError, setLoadingError] = useState(false);
+  const [noResultsError, setNoResultsError] = useState(false);
+
+
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthUser(user);
+      } else {
+        setAuthUser(null);
+        navigate('/'); // Redirect user to the login page
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigate]);
 
   const [galleryData, setGalleryData] = useState([
-    { "id": 1, "imageSrc": deer, "tag": "mammal" },
-    { "id": 2, "imageSrc": fish, "tag": "fish" },
-    { "id": 3, "imageSrc": duck, "tag": "bird" },
-    { "id": 4, "imageSrc": flamingo, "tag": "bird" },
-    { "id": 5, "imageSrc": fox, "tag": "mammal" },
-    { "id": 6, "imageSrc": frog, "tag": "amphibian" },
-    { "id": 7, "imageSrc": horse, "tag": "mammal" },
-    { "id": 8, "imageSrc": monkey, "tag": "mammal" },
-    { "id": 9, "imageSrc": panda, "tag": "mammal" },
-    { "id": 10, "imageSrc": parrot, "tag": "bird" },
-    { "id": 11, "imageSrc": sheep, "tag": "mammal" },
-    { "id": 12, "imageSrc": whale, "tag": "mammal" }
+    { "id": '1', "imageSrc": deer, "tag": "mammal" },
+    { "id": '2', "imageSrc": fish, "tag": "fish" },
+    { "id": '3', "imageSrc": duck, "tag": "bird" },
+    { "id": '4', "imageSrc": flamingo, "tag": "bird" },
+    { "id": '5', "imageSrc": fox, "tag": "mammal" },
+    { "id": '6', "imageSrc": frog, "tag": "amphibian" },
+    { "id": '7', "imageSrc": horse, "tag": "mammal" },
+    { "id": '8', "imageSrc": monkey, "tag": "mammal" },
+    { "id": '9', "imageSrc": panda, "tag": "mammal" },
+    { "id": '10', "imageSrc": parrot, "tag": "bird" },
+    { "id": '11', "imageSrc": sheep, "tag": "mammal" },
+    { "id": '12', "imageSrc": whale, "tag": "mammal" }
   ]);
 
   useEffect(() => {
@@ -41,36 +68,58 @@ function GalleryPage() {
     } else {
       // Filter galleryData based on searchQuery
       setLoading(true);
-      setTimeout(() => {
-        const results = galleryData.filter(item =>
-          item.tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setSearchResults(results);
-        setLoading(false);
-      }, 1000); // Simulate a delay (remove this in production)
-    }
-  }, [searchQuery]);
-
-  const handleSearch = () => {
-    setLoading(true);
-    setSearchResults([]); // Clear previous results
-    // Filter galleryData based on searchQuery
-    setTimeout(() => {
       const results = galleryData.filter(item =>
         item.tag.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setSearchResults(results);
       setLoading(false);
-    }, 1000); // Simulate a delay (remove this in production)
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
+    try {
+      // Load images here
+    } catch (error) {
+      setLoadingError("Error while loading images. Please try again.");
+    }
+  }, []);
+
+  const handleSearch = () => {
+    setLoading(true);
+    setSearchResults([]); // Clear previous results
+    // Filter galleryData based on searchQuery
+
+    const results = galleryData.filter(item =>
+      item.tag.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setSearchResults(results);
+    setLoading(false);
+
+    if (results.length === 0) {
+      setNoResultsError("The search query returned no results");
+    } else {
+      setNoResultsError(false); // Clear the error message if there are search results
+    }
+ 
   };
 
-  const handleOnDragEnd = (result) => {
-    if (!result.destination) return;
-    const items = Array.from(galleryData);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
 
-    setGalleryData(items);
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor)
+  );
+
+  const onDragEnd = (event) => {
+    if (!authUser) {
+      navigate('/');
+      return;
+    }
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      const oldIndex = galleryData.findIndex((item) => item.id === active.id.toString());
+      const newIndex = galleryData.findIndex((item) => item.id === over.id.toString());
+      setGalleryData(arrayMove(galleryData, oldIndex, newIndex));
+    }
   };
 
 
@@ -85,27 +134,38 @@ function GalleryPage() {
         />
         <button className="button" onClick={handleSearch}>Search</button>
       </div>
+      
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+      >
+        <SortableContext
+          items={(searchQuery ? searchResults : galleryData).map((item) => item.id.toString())}
+          strategy={rectSwappingStrategy}
+        >
+          <div className='gallery-grid'>
+            {loading || loadingAll ? (
+              <div className="loading-spinner"></div>
+            ) : loadingError ? (
+              <div className="error-message">{loadingError}</div>
+            ) : noResultsError ? (
+              <div className="error-message">{noResultsError}</div>
+            ): (
+              (searchQuery ? searchResults : galleryData).map((item, index) => (
+                <SortableImage
+                  key={item.id}
+                  id={item.id.toString()}
+                  imageSrc={item.imageSrc}
+                  tag={item.tag}
+                  index={index}
+                />
+              ))
+            )}
 
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <Droppable droppableId="images">
-          {(provided) => (
-            <div className='gallery-grid' {...provided.droppableProps} ref={provided.innerRef}>
-              {galleryData.map((item, index) => (
-                <Draggable key={item.id} draggableId={String(item.id)} index={index}>
-                {(provided, snapshot) => (
-                  <div className={`image-item ${snapshot.isDragging ? "dragging" : ""}`} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                    <img src={item.imageSrc} alt={`Image ${item.id}`} />
-                    
-                  </div>
-                )}
-              </Draggable>              
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
