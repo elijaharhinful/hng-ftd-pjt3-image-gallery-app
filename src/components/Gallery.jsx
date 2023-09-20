@@ -26,8 +26,8 @@ function GalleryPage() {
   const [loadingAll, setLoadingAll] = useState(false);
   const navigate = useNavigate();
   const [authUser, setAuthUser] = useState(null);
-  const [loadingError, setLoadingError] = useState(false);
-  const [noResultsError, setNoResultsError] = useState(false);
+  const [loadingError, setLoadingError] = useState(null);
+  const [noResultsError, setNoResultsError] = useState(null);
 
 
 
@@ -74,13 +74,19 @@ function GalleryPage() {
       setSearchResults(results);
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, galleryData]);
 
   useEffect(() => {
     try {
       // Load images here
+
+      // If loading is successful, set loadingAll to false
+      setLoadingAll(false);
     } catch (error) {
+      // Error while loading images
       setLoadingError("Error while loading images. Please try again.");
+      // Set loadingAll to false to stop the spinner
+      setLoadingAll(false);
     }
   }, []);
 
@@ -96,9 +102,9 @@ function GalleryPage() {
     setLoading(false);
 
     if (results.length === 0) {
-      setNoResultsError("The search query returned no results");
+      setNoResultsError("No search results");
     } else {
-      setNoResultsError(false); // Clear the error message if there are search results
+      setNoResultsError(null); // Clear the error message if there are search results
     }
  
   };
